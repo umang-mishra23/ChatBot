@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Homework Helper Chatbot</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark-mode {
+      background-color: #121212;
+      color: #f0f0f0;
+    }
+
+    body.light-mode {
+      background-color: #f4f4f4;
+      color: #111;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    #chatbox {
+      flex-grow: 1;
+      border: 1px solid #444;
+      padding: 10px;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      overflow-y: auto;
+    }
+
+    .light-mode #chatbox {
+      background-color: #fff;
+      border-color: #ccc;
+    }
+
+    .user {
+      font-weight: bold;
+      color: #00ff9d;
+    }
+
+    .light-mode .user {
+      color: #006400;
+    }
+
+    .bot {
+      color: #ccc;
+    }
+
+    .light-mode .bot {
+      color: #333;
+    }
+
+    .controls {
+      margin-top: 10px;
+    }
+
+    input {
+      width: 60%;
+      padding: 10px;
+      border: 1px solid #666;
+      border-radius: 4px;
+    }
+
+    .light-mode input {
+      background-color: #fff;
+      color: #111;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 14px;
+      margin-left: 5px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .send-btn { background-color: #00ff9d; color: #000; }
+    .voice-btn { background-color: #3f51b5; color: #fff; }
+    .toggle-btn { background-color: #888; color: #fff; }
+
+    footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+    }
+  </style>
+</head>
+<body class="dark-mode">
+  <div class="container">
+    <h2>💬Homework Helper ChatBot</h2>
+    <div id="chatbox"></div>
+
+    <div class="controls">
+      <input id="userInput" placeholder="Ask me anything..." />
+      <button class="send-btn" onclick="sendMessage()">Send</button>
+      <button class="voice-btn" onclick="startVoiceInput()">🎤</button>
+      <button class="toggle-btn" onclick="toggleMode()" id="modeIcon">🌙</button>
+    </div>
+
+    <footer>
+      &copy; 2025 Umang Mishra. All rights reserved.
+    </footer>
+  </div>
+
+  <script>
+    const chatbox = document.getElementById("chatbox");
+    const modeIcon = document.getElementById("modeIcon");
+
+    window.onload = () => {
+      localStorage.removeItem("chatHistory");
+      chatbox.innerHTML = ""; 
+    };
+    
+
+    function saveHistory() {
+      localStorage.setItem("chatHistory", chatbox.innerHTML);
+    }
+
+    async function sendMessage() {
+      const inputField = document.getElementById("userInput");
+      const message = inputField.value;
+      if (!message.trim()) return;
+
+      chatbox.innerHTML += `<p class="user">Umang: ${message}</p>`;
+      saveHistory();
+      inputField.value = "";
+
+      const response = await fetch("http://localhost:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await response.json();
+      chatbox.innerHTML += `<p class="bot">Jarvis: ${data.response}</p>`;
+      speak(data.response);
+      chatbox.scrollTop = chatbox.scrollHeight;
+      saveHistory();
+    }
+
+    function startVoiceInput() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.start();
+
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById("userInput").value = transcript;
+        sendMessage();
+      };
+    }
+
+    function speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function toggleMode() {
+      const body = document.body;
+      const isDark = body.classList.toggle("light-mode");
+      if (isDark) {
+        body.classList.remove("dark-mode");
+        modeIcon.textContent = "☀️";
+      } else {
+        body.classList.add("dark-mode");
+        modeIcon.textContent = "🌙";
+      }
+    }
+  </script>
+</body>
+</html>
