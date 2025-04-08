@@ -1,7 +1,9 @@
 🤖 Umang ChatBot
+
 A smart and interactive chatbot built with Python to assist users with anything that users want to know like as cahatgpt.
 
 ✨ Features
+
 💬 Natural language interaction
 
 ⚙️ Customizable responses and behavior
@@ -15,6 +17,7 @@ A smart and interactive chatbot built with Python to assist users with anything 
 
 
 🛠️ Tech Stack
+
 [Language/Framework] (e.g., Python, Node.js, React)
 
 [Libraries used] (e.g., OpenAI API, Dialogflow, TensorFlow, etc.)
